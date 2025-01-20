@@ -1,0 +1,23 @@
+rs485Port: COM3
+
+reader:
+  readFrequencyHertz: 0.5
+  sampleTimeSeconds: 60
+
+localDataPath: C:/RadiometerData
+networkDataPath: S:/UV/data/bilthoven/Radiometers
+
+headerLines:
+  - 'Radiometer (DeviceType-BatchYear-SerialNr): #sensorDeviceName#'
+  - 'Location: lat: 52.12234 lon: 5.2  Alt: 40 m'
+  - 'Sample frequency (Hz): ${reader.readFrequencyHertz}'
+  - 'Sample time (s): ${reader.sampleTimeSeconds}'
+  - 'Temperature compensated (y/n): y'
+  -
+  - 'Labels'
+  - 'Time: UTC of first reading'
+  - 'Radiation (W/m2): average of readings in Sample time'
+  - 'Std: standard deviation in average'
+  - 'Temp: temperature measuring head (Celsius)'
+  - '#Readings: number of readings in Sample time'
+  -
