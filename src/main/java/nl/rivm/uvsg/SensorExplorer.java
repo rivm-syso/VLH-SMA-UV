@@ -24,6 +24,7 @@ public class SensorExplorer {
 
     //TODO MMo - This should be configurable with default=247, provided that for requesting the device-identification registers a small timeout can be used (see notes)
     public static final short MAXIMUM_NUMBER_OF_SLAVES = 12;
+    public static final String DEVICE_NAME_FORMAT = "%02d%05d";
 
     private final ApplicationContext applicationContext;
     private final ModbusService modbusService;
@@ -90,7 +91,7 @@ public class SensorExplorer {
                 // TODO MMo - Btr: SlaveN-DeviceType<Nr>Unknown (zie KippEnZonen_DeviceTypes)
                     "DeviceTypeUnknown";
         };
-        String deviceName = String.format(prefix + "%02d%05d",
+        String deviceName = String.format(prefix + DEVICE_NAME_FORMAT,
                 response.getRegisterUnsigned(batchNumberAddress), response.getRegisterUnsigned(serialNumberAddress));
         log.info("Found device: {} (deviceTypeId={})", deviceName, deviceTypeId);
         return deviceName;

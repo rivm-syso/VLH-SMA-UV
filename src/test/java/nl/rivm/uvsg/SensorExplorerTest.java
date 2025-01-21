@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 
 import java.util.List;
-import java.util.Random;
 
 import static nl.rivm.uvsg.sensor.metadata.KippEnZonen_SMP3A.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,10 +43,10 @@ class SensorExplorerTest {
         mockNoDevicesInRange(2, SensorExplorer.MAXIMUM_NUMBER_OF_SLAVES);
 
         int slaveId = 1;
-        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.UNKNOWN);
-        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SMP3A);
-        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SUVA);
-        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SUVE);
+        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.UNKNOWN, 1, 9);
+        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SMP3A, 11, 99);
+        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SUVA, 111, 999);
+        getMockedResponseAndAssertFields(slaveId, KippEnZonen_DeviceTypes.SUVE, 1111, 9999);
     }
 
     @Test
@@ -70,12 +69,10 @@ class SensorExplorerTest {
                 thenThrow(new ModbusException(new com.ghgande.j2mod.modbus.ModbusIOException()));
     }
 
-    private void getMockedResponseAndAssertFields(int slaveId, KippEnZonen_DeviceTypes deviceType) throws Exception {
+    private void getMockedResponseAndAssertFields(
+            int slaveId, KippEnZonen_DeviceTypes deviceType, int batchNumber, int serialNumber) throws Exception {
 
-        Random random = new Random();
-        int batchNumberRandom = random.nextInt(0x10000);
-        int serialNumberRandom = random.nextInt(0x10000);
-        mockDeviceResponse(slaveId, batchNumberRandom, serialNumberRandom, deviceType.value);
+        mockDeviceResponse(slaveId, batchNumber, serialNumber, deviceType.value);
 
         when(applicationContext.getBean(eq(Sensor.class), anyShort(), anyString())).
                 thenAnswer(invocation -> new Sensor(invocation.getArgument(1), invocation.getArgument(2)));
@@ -83,7 +80,8 @@ class SensorExplorerTest {
         List<Sensor> sensors = sensorExplorer.findSensors();
         assertEquals(1, sensors.size());
 
-        String expectedDeviceName = deviceType.name + batchNumberRandom + serialNumberRandom;
+        String expectedDeviceName =
+                String.format(deviceType.name + SensorExplorer.DEVICE_NAME_FORMAT, batchNumber, serialNumber);
         assertEquals(expectedDeviceName, sensors.get(0).getDeviceName());
 
         assertEquals(slaveId, sensors.get(0).getSlaveId());
